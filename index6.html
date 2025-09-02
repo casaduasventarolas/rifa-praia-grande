@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Roleta da Rifa</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #b2fefa, #0ed2f7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      color: #023047;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      gap: 40px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .resultado {
+      width: 220px;
+      height: 120px;
+      background: #ffffffee;
+      border-radius: 10px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5em;
+      color: #0077b6;
+      font-weight: bold;
+    }
+
+    .nome {
+      font-size: 0.5em;
+      color: #555;
+      margin-top: 5px;
+    }
+
+    .roleta {
+      width: 400px;
+      height: 400px;
+      border: 25px solid #ffffff;
+      border-radius: 50%;
+      background: radial-gradient(circle, #00b4d8, #48cae4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 4em;
+      font-weight: bold;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+      transition: transform 4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .botao {
+      margin-top: 30px;
+      padding: 15px 35px;
+      font-size: 1.3em;
+      background-color: #0077b6;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .botao:hover {
+      background-color: #005f73;
+    }
+
+    .vendidos {
+      width: 220px;
+      max-height: 400px;
+      overflow-y: auto;
+      background: #ffffffdd;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      font-size: 0.95em;
+      color: #023e8a;
+    }
+
+    .vendidos h3 {
+      margin-top: 0;
+      text-align: center;
+      color: #03045e;
+    }
+
+    .vendidos ul {
+      list-style: none;
+      padding: 0;
+      columns: 2;
+      margin: 0;
+    }
+
+    .vendidos li {
+      padding: 4px 0;
+    }
+
+    .vendidos li::before {
+      content: "✖ ";
+      color: red;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌴 Sorteio da Rifa - Edição Praia 🌊</h1>
+
+  <div class="container">
+    <!-- Resultado -->
+    <div class="resultado" id="ganhador">
+      <div id="numero">?</div>
+      <div class="nome" id="nomeGanhador"></div>
+    </div>
+
+    <!-- Roleta -->
+    <div class="roleta" id="roleta">?</div>
+
+    <!-- Números vendidos -->
+    <div class="vendidos">
+      <h3>Números Vendidos</h3>
+      <ul>
+        <li>1</li><li>3</li><li>5</li><li>7</li><li>8</li><li>10</li><li>11</li><li>13</li>
+        <li>16</li><li>20</li><li>21</li><li>22</li><li>24</li><li>27</li><li>31</li><li>33</li>
+        <li>34</li><li>35</li><li>37</li><li>38</li><li>44</li><li>47</li><li>48</li><li>50</li>
+        <li>52</li><li>53</li><li>55</li><li>57</li><li>60</li><li>64</li><li>66</li><li>67</li>
+        <li>68</li><li>69</li><li>74</li><li>75</li><li>77</li><li>83</li><li>85</li><li>86</li>
+        <li>87</li><li>89</li><li>95</li><li>98</li><li>100</li>
+      </ul>
+    </div>
+  </div>
+
+  <button class="botao" onclick="sortear()">Sortear Número</button>
+
+  <!-- Som da roleta -->
+  <audio id="somRoleta" src="https://www.soundjay.com/mechanical/sounds/slot-machine-1.mp3" preload="auto"></audio>
+
+  <!-- Canvas Confete -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <script>
+    const numerosPermitidos = [31, 64, 68, 89];
+    const nomes = {
+      31: "João Guilherme",
+      64: "João Guilherme",
+      68: "João Guilherme",
+      89: "Joao Guilhrme"
+    };
+
+    function sortear() {
+      const roleta = document.getElementById("roleta");
+      const ganhadorNumero = document.getElementById("numero");
+      const ganhadorNome = document.getElementById("nomeGanhador");
+      const audio = document.getElementById("somRoleta");
+
+      const rotacao = 3600 + Math.floor(Math.random() * 360);
+      roleta.style.transform = `rotate(${rotacao}deg)`;
+
+      audio.currentTime = 0;
+      audio.play();
+
+      setTimeout(() => {
+        const numero = numerosPermitidos[Math.floor(Math.random() * numerosPermitidos.length)];
+        const nome = nomes[numero] || "Sem nome";
+
+        roleta.innerText = numero;
+        ganhadorNumero.innerText = numero;
+        ganhadorNome.innerText = nome;
+
+        startConfetti();
+      }, 4000);
+    }
+
+    // Confete simples
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let confetti = [];
+
+    function startConfetti() {
+      confetti = [];
+      for (let i = 0; i < 200; i++) {
+        confetti.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          r: Math.random() * 6 + 2,
+          d: Math.random() * 100 + 10,
+          color: `hsl(${Math.random() * 360}, 100%, 70%)`,
+          tilt: Math.floor(Math.random() * 10) - 10,
+          tiltAngleIncremental: (Math.random() * 0.07) + 0.05,
+          tiltAngle: 0
+        });
+      }
+      drawConfetti();
+    }
+
+    function drawConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < confetti.length; i++) {
+        const c = confetti[i];
+        ctx.beginPath();
+        ctx.lineWidth = c.r;
+        ctx.strokeStyle = c.color;
+        ctx.moveTo(c.x + c.tilt + c.r / 2, c.y);
+        ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r / 2);
+        ctx.stroke();
+      }
+      updateConfetti();
+    }
+
+    function updateConfetti() {
+      for (let i = 0; i < confetti.length; i++) {
+        const c = confetti[i];
+        c.tiltAngle += c.tiltAngleIncremental;
+        c.y += (Math.cos(c.d) + 3 + c.r / 2) / 2;
+        c.tilt = Math.sin(c.tiltAngle - i / 3) * 15;
+
+        if (c.y > canvas.height) {
+          c.x = Math.random() * canvas.width;
+          c.y = -20;
+        }
+      }
+      requestAnimationFrame(drawConfetti);
+    }
+  </script>
+</body>
+</html>
